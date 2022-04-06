@@ -6,7 +6,7 @@ import { Discord, Once, Slash, SlashOption } from "discordx";
 import * as Lava from "@discordx/lava-player";
 
 @Discord()
-export class MusicPlayer {
+class MusicPlayer {
   node: Lava.Node | undefined;
 
   @Once("ready")
@@ -14,6 +14,7 @@ export class MusicPlayer {
     const nodeX = new Lava.Node({
       host: {
         address: process.env.LAVA_HOST ?? "localhost",
+        connectionOptions: { resumeKey: "discordx", resumeTimeout: 15 },
         port: process.env.LAVA_PORT ? Number(process.env.LAVA_PORT) : 2333,
       },
 
@@ -32,15 +33,26 @@ export class MusicPlayer {
 
     nodeX.on("event", (e) => {
       switch (e.type) {
-        case "TrackStartEvent":
+        case Lava.EventType.TrackStartEvent:
           console.log(e);
           break;
-        case "TrackEndEvent":
+
+        case Lava.EventType.TrackEndEvent:
           console.log(e);
           break;
-        case "WebSocketClosedEvent":
+
+        case Lava.EventType.TrackExceptionEvent:
           console.log(e);
           break;
+
+        case Lava.EventType.TrackStuckEvent:
+          console.log(e);
+          break;
+
+        case Lava.EventType.WebSocketClosedEvent:
+          console.log(e);
+          break;
+
         default:
           console.log(e);
           break;
@@ -67,29 +79,41 @@ export class MusicPlayer {
     @SlashOption("song") song: string,
     interaction: CommandInteraction
   ): Promise<void> {
+    await interaction.deferReply();
+
     if (!(interaction.member instanceof GuildMember) || !interaction.guildId) {
+      interaction.followUp("could not process this command, try again");
+      return;
+    }
+
+    if (!this.node) {
+      interaction.followUp("lavalink player is not ready");
+      return;
+    }
+
+    if (!interaction.member.voice.channelId) {
+      interaction.followUp("lavalink player is not ready");
       return;
     }
 
     await interaction.deferReply();
 
-    if (this.node && interaction.member.voice.channelId) {
-      const player = this.node.players.get(interaction.guildId);
+    const player = this.node.players.get(interaction.guildId);
 
-      if (!player.voiceServer) {
-        await player.join(interaction.member.voice.channelId, { deaf: true });
-      }
-
-      const res = await this.node.load(`ytsearch:${song}`);
-      const track = res.tracks[0];
-
-      if (track) {
-        await player.play(track);
-        interaction.editReply(`playing ${track.info.title}`);
-        return;
-      } else {
-        interaction.editReply("not sure what's wrong");
-      }
+    if (!player.voiceServer) {
+      await player.join(interaction.member.voice.channelId, { deaf: true });
     }
+
+    const res = await this.node.load(`ytsearch:${song}`);
+    const track = res.tracks[0];
+
+    if (track) {
+      await player.play(track);
+      await interaction.followUp(`playing ${track.info.title}`);
+    } else {
+      await interaction.followUp("Song not found with given input");
+    }
+
+    return;
   }
 }
