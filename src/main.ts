@@ -10,8 +10,6 @@ export const client = new Client({
   intents: [
     Intents.FLAGS.GUILDS,
     Intents.FLAGS.GUILD_MEMBERS,
-    Intents.FLAGS.GUILD_MESSAGES,
-    Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
     Intents.FLAGS.GUILD_VOICE_STATES,
   ],
   // If you only want to use global commands only, comment this line
@@ -31,12 +29,6 @@ client.once("ready", async () => {
   // init permissions; enabled log to see changes
   await client.initApplicationPermissions(true);
 
-  // uncomment this line to clear all guild commands,
-  // useful when moving to global commands from guild commands
-  //  await client.clearApplicationCommands(
-  //    ...client.guilds.cache.map((g) => g.id)
-  //  );
-
   console.log("Bot started");
 });
 
@@ -49,12 +41,7 @@ client.on("messageCreate", (message: Message) => {
 });
 
 async function run() {
-  // with cjs
-  // await importx(__dirname + "/{events,commands}/**/*.{ts,js}");
-  // with ems
-  await importx(
-    dirname(import.meta.url) + "/{events,commands,api}/**/*.{ts,js}"
-  );
+  await importx(dirname(import.meta.url) + "/commands/**/*.{ts,js}");
 
   // let's start the bot
   if (!process.env.BOT_TOKEN) {
