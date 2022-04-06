@@ -54,6 +54,8 @@ export class MusicPlayer {
       return;
     }
 
+    await interaction.deferReply();
+
     if (this.node && interaction.member.voice.channelId) {
       const player = this.node.players.get(interaction.guildId);
 
@@ -66,10 +68,10 @@ export class MusicPlayer {
 
       if (track) {
         await player.play(track);
-        interaction.reply(`playing ${track.info.title}`);
+        interaction.editReply(`playing ${track.info.title}`);
         return;
       } else {
-        interaction.reply("not sure what's wrong");
+        interaction.editReply("not sure what's wrong");
       }
     }
   }
