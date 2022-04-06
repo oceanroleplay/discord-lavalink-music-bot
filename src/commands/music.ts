@@ -1,7 +1,7 @@
 import type { CommandInteraction } from "discord.js";
 import { GuildMember } from "discord.js";
 import type { ArgsOf, Client } from "discordx";
-import { Discord, On, Slash, SlashOption } from "discordx";
+import { Discord, Once, Slash, SlashOption } from "discordx";
 
 import * as Lava from "@discordx/lava-player";
 
@@ -9,7 +9,7 @@ import * as Lava from "@discordx/lava-player";
 export class MusicPlayer {
   node: Lava.Node | undefined;
 
-  @On("ready")
+  @Once("ready")
   onReady([]: ArgsOf<"ready">, client: Client): void {
     const nodeX = new Lava.Node({
       host: {
@@ -28,6 +28,23 @@ export class MusicPlayer {
       },
       shardCount: 0, // the total number of shards that your bot is running (optional, useful if you're load balancing)
       userId: client.user?.id ?? "", // the user id of your bot
+    });
+
+    nodeX.on("event", (e) => {
+      switch (e.type) {
+        case "TrackStartEvent":
+          console.log(e);
+          break;
+        case "TrackEndEvent":
+          console.log(e);
+          break;
+        case "WebSocketClosedEvent":
+          console.log(e);
+          break;
+        default:
+          console.log(e);
+          break;
+      }
     });
 
     nodeX.on("error", (e) => {
