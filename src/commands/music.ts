@@ -56,16 +56,21 @@ export class MusicPlayer {
 
     if (this.node && interaction.member.voice.channelId) {
       const player = this.node.players.get(interaction.guildId);
-      console.log(player.voiceServer);
-      await player.join(interaction.member.voice.channelId);
+
+      if (!player.voiceServer) {
+        await player.join(interaction.member.voice.channelId, { deaf: true });
+      }
+
       const res = await this.node.load(`ytsearch:${song}`);
       const track = res.tracks[0];
+
       if (track) {
         await player.play(track);
-        interaction.reply("playing...");
+        interaction.reply(`playing ${track.info.title}`);
         return;
+      } else {
+        interaction.reply("not sure what's wrong");
       }
     }
-    interaction.reply("can not play");
   }
 }
