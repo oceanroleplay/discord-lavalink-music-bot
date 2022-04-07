@@ -18,7 +18,7 @@ class MusicPlayer {
 
     const lavaLinkNode = new Lava.Node({
       host: {
-        address: process.env.LAVA_HOST ?? "localhost",
+        address: process.env.LAVA_HOST ? process.env.LAVA_HOST : "lavalink",
         connectionOptions: { resumeKey: "discordx", resumeTimeout: 15 },
         port: process.env.LAVA_PORT ? Number(process.env.LAVA_PORT) : 2333,
       },
