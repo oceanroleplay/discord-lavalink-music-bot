@@ -21,6 +21,10 @@ import type { ArgsOf, Client } from "discordx";
 import { ButtonComponent, Discord, Once, Slash, SlashOption } from "discordx";
 import { Player, Queue } from "@discordx/lava-queue";
 
+function wait(ms: number) {
+  return new Promise((resolve) => setTimeout(() => resolve(true), ms));
+}
+
 class MusicQueue extends Queue {
   channelId?: string;
   lastControlMessage?: Message;
@@ -328,7 +332,8 @@ class MusicPlayer {
   }
 
   @Once("ready")
-  onReady([]: ArgsOf<"ready">, client: Client): void {
+  async onReady([]: ArgsOf<"ready">, client: Client): Promise<void> {
+    await wait(5e3);
     const nodeX = new Lava.Node({
       host: {
         address: process.env.LAVA_HOST ?? "lavalink",
