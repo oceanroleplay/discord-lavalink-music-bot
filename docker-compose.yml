@@ -23,6 +23,8 @@ services:
       dockerfile: Dockerfile
     environment:
       - BOT_TOKEN=${BOT_TOKEN}
+      - LAVA_HOST=lavalink
+      - LAVA_PORT=2333
     networks:
       - discordx-network
     command: node build/main.js

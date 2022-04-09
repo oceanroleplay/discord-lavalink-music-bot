@@ -4,7 +4,7 @@ import type { Client } from "discordx";
 export function getNode(client: Client): Lava.Node {
   const nodeX = new Lava.Node({
     host: {
-      address: process.env.LAVA_HOST ?? "lavalink",
+      address: process.env.LAVA_HOST ?? "localhost",
       connectionOptions: { resumeKey: client.botId, resumeTimeout: 15 },
       port: process.env.LAVA_PORT ? Number(process.env.LAVA_PORT) : 2333,
     },
